@@ -16,7 +16,7 @@ export default function useFilesystem(props: UseFilesystemProps) {
     return runner?.readFile(name)
   }
 
-  const writeFile = (name: string, data: string) => {
+  const writeFile = (name: string, data: string | ArrayBufferView) => {
     return runner?.writeFile(name, data)
   }
 
@@ -26,6 +26,23 @@ export default function useFilesystem(props: UseFilesystemProps) {
 
   const rmdir = (name: string) => {
     return runner?.rmdir(name)
+  }
+
+  const deleteFile = (path : string) => {
+    return runner?.deleteFile(path)
+  }
+
+  const readdir = (path: string) => {
+    return runner?.readdir(path)
+  }
+
+  const stat = (path: string) => {
+    return runner?.stat(path)
+
+  }
+
+  const isDirExists = (path: string) => {
+    return runner?.isDirExists(path)
   }
 
   const watchModules = (moduleNames: string[]) => {
@@ -43,6 +60,10 @@ export default function useFilesystem(props: UseFilesystemProps) {
     writeFile,
     mkdir,
     rmdir,
+    deleteFile,
+    readdir,
+    stat,
+    isDirExists,
     watchModules,
     unwatchModules,
     watchedModules
