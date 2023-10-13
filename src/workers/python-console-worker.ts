@@ -7,16 +7,30 @@ interface Pyodide {
   runPythonAsync: (code: string, namespace?: any) => Promise<void>
   version: string
   FS: {
-    readFile: (name: string, options: unknown) => void
-    writeFile: (name: string, data: string, options: unknown) => void
+    readFile: (name: string) => string | ArrayBuffer
+    writeFile: (name: string, data: string | ArrayBufferView) => void
     mkdir: (name: string) => void
     rmdir: (name: string) => void
+    unlink: (path:string) => void
+    readdir: (path: string) => string[]
+    stat: (path: string) => FileStats
+    open: (path:string,flags:string) => void
+    close: (stream:any) => void
+    write: (stream:any,buffer:ArrayBufferView) => void
+    analyzePath: (path: string) => {
+      exists: boolean,
+    }
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   globals: any
   isPyProxy: (value: unknown) => boolean
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   registerJsModule: any
+  loadedPackages: {
+    [key: string]: string
+  }
+  loadPackagesFromImports: (code: string) => Promise<void>
+
 }
 
 interface micropip {
@@ -37,12 +51,13 @@ declare global {
 // Monkey patch console.log to prevent the script from outputting logs
 if (self.location.hostname !== 'localhost') {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  console.log = () => {}
+  console.log = () => { }
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  console.error = () => {}
+  console.error = () => { }
 }
 
 import { expose } from 'comlink'
+import { FileStats } from '../types/FileStats'
 
 let pythonConsole: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -184,10 +199,10 @@ sys.stdin.readline = lambda: react_py.getInput("${id}", __prompt_str__)
     return { state }
   },
   readFile(name: string) {
-    return self.pyodide.FS.readFile(name, { encoding: 'utf8' })
+    return self.pyodide.FS.readFile(name)
   },
-  writeFile(name: string, data: string) {
-    return self.pyodide.FS.writeFile(name, data, { encoding: 'utf8' })
+  writeFile(name: string, data: string | ArrayBufferView) {
+    return self.pyodide.FS.writeFile(name, data)
   },
   mkdir(name: string) {
     self.pyodide.FS.mkdir(name)
