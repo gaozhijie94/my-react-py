@@ -47,6 +47,10 @@ export default function usePython(props?: UsePythonProps) {
     writeFile,
     mkdir,
     rmdir,
+    deleteFile,
+    readdir,
+    stat,
+    isDirExists,
     watchModules,
     unwatchModules,
     watchedModules
@@ -235,7 +239,8 @@ del sys
     setIsRunning(false)
     setRunnerId(undefined)
     setOutput([])
-
+    setStdout('')
+    setStderr('')
     // Spawn new worker
     createWorker()
   }
@@ -259,6 +264,25 @@ del sys
     sendInput(runnerId, value)
   }
 
+  const addPackages = async (packages: string[]) => {
+    await runnerRef.current?.addPackages(packages)
+  }
+
+  const loadedPackages = () => {
+    return runnerRef.current?.loadedPackages()
+  }
+
+  const loadPackagesFromImports = async (code: string) => {
+    await runnerRef.current?.loadPackagesFromImports(code)
+  }
+
+  const clearStd = () => {
+    setStdout('')
+    setStderr('')
+  }
+
+
+
   return {
     runPython,
     stdout,
@@ -267,14 +291,22 @@ del sys
     isReady,
     isRunning,
     interruptExecution,
+    clearStd,
     readFile,
     writeFile,
     mkdir,
     rmdir,
+    deleteFile,
+    readdir,
+    stat,
+    isDirExists,
     watchModules,
     unwatchModules,
     isAwaitingInput,
     sendInput: sendUserInput,
-    prompt: runnerId ? getPrompt(runnerId) : ''
+    prompt: runnerId ? getPrompt(runnerId) : '',
+    addPackages,
+    loadedPackages,
+    loadPackagesFromImports,
   }
 }
